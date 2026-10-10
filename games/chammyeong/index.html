@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>줄 곡예사 챔피언 챔명이</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+        :root {
+            /* Theme A (Pink Pastel) - Default */
+            --bg-color: #ffe4e1;
+            --sky-gradient-top: #ffc0cb;
+            --sky-gradient-bottom: #ffe4e1;
+            --text-color: #8b4513;
+            --btn-bg: #ff69b4;
+            --btn-hover: #ff1493;
+        }
+
+        [data-theme="B"] {
+            /* Theme B (Mint/Blue Pastel) */
+            --bg-color: #e0ffff;
+            --sky-gradient-top: #b0e0e6;
+            --sky-gradient-bottom: #f0ffff;
+            --text-color: #2f4f4f;
+            --btn-bg: #20b2aa;
+            --btn-hover: #008b8b;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Jua', sans-serif;
+            background-color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            touch-action: none;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 100%;
+            max-height: 600px;
+            background: linear-gradient(to bottom, var(--sky-gradient-top), var(--sky-gradient-bottom));
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            overflow: hidden;
+            transition: background 0.5s ease;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .ui-layer > * {
+            pointer-events: auto;
+        }
+
+        .glowing-btn {
+            background-color: var(--btn-bg);
+            color: white;
+            padding: 15px 40px;
+            font-size: 28px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--btn-bg), 0 0 30px var(--btn-bg);
+            transition: all 0.3s ease;
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        .glowing-btn:hover {
+            background-color: var(--btn-hover);
+            transform: scale(1.1);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 10px var(--btn-bg), 0 0 20px var(--btn-bg); transform: scale(1); }
+            100% { box-shadow: 0 0 20px var(--btn-bg), 0 0 40px var(--btn-bg); transform: scale(1.05); }
+        }
+
+        .title {
+            font-size: 48px;
+            color: var(--text-color);
+            text-shadow: 2px 2px 0px white, -2px -2px 0px white, 2px -2px 0px white, -2px 2px 0px white;
+            text-align: center;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .speech-bubble {
+            position: relative;
+            background: white;
+            border-radius: .4em;
+            padding: 10px 15px;
+            font-size: 16px;
+            color: #333;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+            text-align: center;
+            cursor: pointer;
+            animation: float 3s infinite ease-in-out;
+        }
+
+        .speech-bubble:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border: 15px solid transparent;
+            border-top-color: white;
+            border-bottom: 0;
+            border-left: 0;
+            margin-left: -7.5px;
+            margin-bottom: -15px;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .chammyeong-mini {
+            width: 80px;
+            height: 100px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .chammyeong-mini:active {
+            transform: scale(0.9);
+        }
+
+        .hidden { display: none !important; }
+
+        /* Prologue Comic Styles */
+        .comic-panel {
+            width: 80%;
+            height: 60%;
+            background: white;
+            border: 4px solid var(--text-color);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            text-align: center;
+            box-shadow: 10px 10px 0px rgba(0,0,0,0.1);
+            animation: popIn 0.5s ease-out;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .comic-text {
+            font-size: 24px;
+            color: var(--text-color);
+        }
+
+        .comic-image {
+            width: 100%;
+            height: 70%;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* HUD */
+        #hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 24px;
+            color: var(--text-color);
+            text-shadow: 1px 1px 0 white;
+            pointer-events: none;
+        }
+
+        .heart {
+            color: #ff4d4d;
+            font-size: 28px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        
+        <div id="hud" class="hidden">
+            <div>점프한 줄: <span id="scoreDisplay">0</span> / 6000</div>
+            <div id="lifeDisplay">❤️❤️❤️</div>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="startScreen" class="ui-layer">
+            <div class="absolute top-4 right-4 flex gap-2">
+                <button onclick="setTheme('A')" class="px-3 py-1 bg-pink-300 text-white rounded-lg shadow font-bold text-sm hover:bg-pink-400">핑크 테마 (A)</button>
+                <button onclick="setTheme('B')" class="px-3 py-1 bg-teal-300 text-white rounded-lg shadow font-bold text-sm hover:bg-teal-400">민트 테마 (B)</button>
+            </div>
+            
+            <h1 class="title">줄 곡예사 챔피언<br>챔명이</h1>
+            
+            <button class="glowing-btn mb-12" onclick="startGame()">START</button>
+            
+            <div class="flex flex-col items-center">
+                <div class="speech-bubble" id="prologueTrigger">
+                    프롤로그 스토리를 보려면<br>나를 3번 누르기! (<span id="clickCount">0</span>/3)
+                </div>
+                <!-- Mini Cham-myeong using Canvas -->
+                <canvas id="miniChammyeong" class="chammyeong-mini" width="100" height="120" onclick="handleMiniClick()"></canvas>
+            </div>
+        </div>
+
+        <!-- Prologue Screen -->
+        <div id="prologueScreen" class="ui-layer hidden" style="background: rgba(0,0,0,0.5);">
+            <div class="comic-panel" id="comicPanel" onclick="nextPrologue()">
+                <div class="comic-image" id="comicImgContainer">
+                    <canvas id="comicCanvas" width="300" height="200"></canvas>
+                </div>
+                <div class="comic-text" id="comicText">어느 날, 서커스단에 놀러간 챔명이...</div>
+                <div class="text-sm text-gray-500 mt-2">(화면을 터치/클릭하세요)</div>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="gameOverScreen" class="ui-layer hidden" style="background: rgba(0,0,0,0.85); z-index: 50; padding: 20px;">
+            <div class="flex flex-col items-center justify-center max-h-full overflow-y-auto py-2">
+                <h2 class="text-4xl sm:text-5xl text-red-400 font-bold mb-2 text-shadow">실격!</h2>
+                <canvas id="cryingCanvas" width="160" height="180" class="mb-2"></canvas>
+                <p class="text-white text-xl sm:text-2xl mb-5 text-center leading-relaxed">줄 곡예사 시험에 떨어졌어... 잉잉<br>넘은 줄: <span id="finalScore" class="font-bold text-yellow-300">0</span>개</p>
+                <div class="flex flex-row gap-4 justify-center items-center w-full">
+                    <button class="glowing-btn text-lg sm:text-xl px-6 py-3" onclick="startGame()">🎮 다시 시작하기</button>
+                    <button class="glowing-btn text-lg sm:text-xl px-6 py-3" style="background-color: #64748b; box-shadow: 0 0 12px #64748b;" onclick="resetToMenu()">🏠 처음으로</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Victory Screen -->
+        <div id="victoryScreen" class="ui-layer hidden" style="background: rgba(255,215,0,0.25); backdrop-filter: blur(8px); z-index: 50; padding: 20px;">
+            <div class="flex flex-col items-center justify-center max-h-full overflow-y-auto py-2">
+                <h2 class="text-4xl sm:text-5xl text-yellow-500 font-bold mb-2" style="text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff;">챔피언 등극!</h2>
+                <canvas id="happyCanvas" width="180" height="200" class="mb-2"></canvas>
+                <p class="text-lg sm:text-xl text-gray-800 font-bold mb-5 text-center bg-white/90 p-4 rounded-xl shadow-lg leading-relaxed">대단해! 6000개의 줄을 모두 넘었어!<br>세계 최고의 줄 곡예사 탄생!</p>
+                <div class="flex flex-row gap-4 justify-center items-center w-full">
+                    <button class="glowing-btn text-lg sm:text-xl px-6 py-3" onclick="startGame()">🏆 다시 도전하기</button>
+                    <button class="glowing-btn text-lg sm:text-xl px-6 py-3" style="background-color: #64748b; box-shadow: 0 0 12px #64748b;" onclick="resetToMenu()">🏠 처음으로</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('game-container');
+
+        // UI Elements
+        const startScreen = document.getElementById('startScreen');
+        const prologueScreen = document.getElementById('prologueScreen');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const victoryScreen = document.getElementById('victoryScreen');
+        const hud = document.getElementById('hud');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const lifeDisplay = document.getElementById('lifeDisplay');
+        const clickCountDisplay = document.getElementById('clickCount');
+
+        // Game State
+        let gameState = 'MENU'; // MENU, PROLOGUE, PLAYING, GAMEOVER, VICTORY
+        let animationId;
+        let lastTime = 0;
+        
+        // Settings
+        const TARGET_SCORE = 6000;
+        const GRAVITY = 0.6;
+        const MAX_JUMP_HOLD = 20; // Frames spacebar can be held for extra height
+        const BASE_GAME_SPEED = 5;
+
+        // Player Data
+        let player = {
+            x: 100,
+            y: 0, // Will be set based on ground
+            width: 60,
+            height: 80,
+            vy: 0,
+            isJumping: false,
+            jumpHoldTimer: 0,
+            lives: 3,
+            score: 0,
+            groundY: 0,
+            color: '#FFF5E1', // Cham-myeong body color
+            invulnerableTime: 0
+        };
+
+        // Ropes (Obstacles)
+        let ropes = [];
+        let ropeSpawnTimer = 0;
+        let currentSpeed = BASE_GAME_SPEED;
+
+        // Input
+        let keys = {};
+        let isSpacePressed = false;
+
+        // Prologue State
+        let prologueClicks = 0;
+        let prologueStep = 0;
+        const prologueData = [
+            { text: "어느 날, 서커스단에 놀러간 챔명이...", draw: drawPrologue1 },
+            { text: "우와! 줄 위를 날아다니잖아?!", draw: drawPrologue2 },
+            { text: "결심했어! 나도 세계 최고의 줄 곡예사가 될 거야!", draw: drawPrologue3 }
+        ];
+
+        // Resize Handling
+        function resize() {
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            player.groundY = canvas.height - 100;
+            if(gameState === 'MENU') player.y = player.groundY;
+        }
+        window.addEventListener('resize', resize);
+
+        // Theme switching
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+
+        // Reusable 3D Clay Cham-myeong Rendering Function
+        function drawChamMyeongBase(context, x, y, w, h, state = 'normal') {
+            context.save();
+            context.translate(x, y);
+
+            // 1. Body Soft Drop Shadow (Depth effect)
+            context.save();
+            context.shadowColor = 'rgba(0, 0, 0, 0.18)';
+            context.shadowBlur = 10;
+            context.shadowOffsetY = 6;
+
+            // Base Body Path
+            const bodyPath = () => {
+                context.beginPath();
+                context.moveTo(w*0.25, h*0.1); 
+                context.quadraticCurveTo(w*0.5, -h*0.05, w*0.75, h*0.1); 
+                context.bezierCurveTo(w*1.05, h*0.2, w*1.05, h*0.7, w*0.85, h*0.85); 
+                context.quadraticCurveTo(w*0.8, h, w*0.6, h*0.95); 
+                context.quadraticCurveTo(w*0.5, h*0.85, w*0.4, h*0.95); 
+                context.quadraticCurveTo(w*0.2, h, w*0.15, h*0.85); 
+                context.bezierCurveTo(-w*0.05, h*0.7, -w*0.05, h*0.2, w*0.25, h*0.1); 
+                context.closePath();
+            };
+
+            bodyPath();
+            
+            // Fill with 3D Spherical Radial Gradient (Clay/Plasticine Lighting)
+            let bodyGrad = context.createRadialGradient(
+                w * 0.35, h * 0.22, w * 0.05, // Light Highlight Source (Top-Left)
+                w * 0.5, h * 0.5, w * 0.65     // Outer Sphere Shadow
+            );
+            bodyGrad.addColorStop(0, '#FFFFFF');     // Specular Light
+            bodyGrad.addColorStop(0.3, '#FFFBF0');   // Cream Base
+            bodyGrad.addColorStop(0.75, '#F5E3C3');  // 3D Shadow
+            bodyGrad.addColorStop(1, '#DFC39A');     // Occlusion Edge Shading
+            context.fillStyle = bodyGrad;
+            context.fill();
+            context.restore(); // Restore shadow context
+
+            // 3D Soft Head Specular Highlight
+            context.save();
+            context.fillStyle = 'rgba(255, 255, 255, 0.45)';
+            context.beginPath();
+            context.ellipse(w * 0.32, h * 0.22, w * 0.18, h * 0.12, -Math.PI / 6, 0, Math.PI * 2);
+            context.fill();
+            context.restore();
+
+            // 2. 3D Clay Arms & Thumbs Up
+            // Left Arm
+            context.save();
+            context.shadowColor = 'rgba(80, 50, 20, 0.2)';
+            context.shadowBlur = 5;
+            context.shadowOffsetX = 2;
+            context.shadowOffsetY = 3;
+
+            let leftArmGrad = context.createRadialGradient(-w*0.02, h*0.4, 2, 0, h*0.45, w*0.2);
+            leftArmGrad.addColorStop(0, '#FFFFFF');
+            leftArmGrad.addColorStop(0.4, '#FFF5E1');
+            leftArmGrad.addColorStop(1, '#DEC49D');
+
+            context.fillStyle = leftArmGrad;
+            context.beginPath();
+            context.ellipse(0, h*0.45, w*0.15, h*0.12, Math.PI/4, 0, Math.PI*2);
+            context.fill();
+            context.beginPath();
+            context.arc(-w*0.08, h*0.38, w*0.05, 0, Math.PI*2);
+            context.fill();
+            context.restore();
+
+            // Right Arm
+            context.save();
+            context.shadowColor = 'rgba(80, 50, 20, 0.2)';
+            context.shadowBlur = 5;
+            context.shadowOffsetX = -2;
+            context.shadowOffsetY = 3;
+
+            let rightArmGrad = context.createRadialGradient(w*1.02, h*0.4, 2, w, h*0.45, w*0.2);
+            rightArmGrad.addColorStop(0, '#FFFFFF');
+            rightArmGrad.addColorStop(0.4, '#FFF5E1');
+            rightArmGrad.addColorStop(1, '#DEC49D');
+
+            context.fillStyle = rightArmGrad;
+            context.beginPath();
+            context.ellipse(w, h*0.45, w*0.15, h*0.12, -Math.PI/4, 0, Math.PI*2);
+            context.fill();
+            context.beginPath();
+            context.arc(w*1.08, h*0.38, w*0.05, 0, Math.PI*2);
+            context.fill();
+            context.restore();
+
+            // 3. 3D Gold Crown (Metallic gradient & sheen)
+            context.save();
+            context.shadowColor = 'rgba(60, 40, 0, 0.35)';
+            context.shadowBlur = 6;
+            context.shadowOffsetY = 3;
+
+            let crownGrad = context.createLinearGradient(w*0.15, -h*0.2, w*0.85, h*0.1);
+            crownGrad.addColorStop(0, '#FFF29B');
+            crownGrad.addColorStop(0.35, '#FFD700');
+            crownGrad.addColorStop(0.7, '#C88E00');
+            crownGrad.addColorStop(1, '#8C5A00');
+
+            context.fillStyle = crownGrad;
+            context.lineJoin = 'round';
+            context.beginPath();
+            context.moveTo(w*0.25, h*0.08);
+            context.quadraticCurveTo(w*0.5, h*0.12, w*0.75, h*0.08);
+            context.lineTo(w*0.85, -h*0.15); 
+            context.lineTo(w*0.65, 0); 
+            context.lineTo(w*0.5, -h*0.2); 
+            context.lineTo(w*0.35, 0); 
+            context.lineTo(w*0.15, -h*0.15); 
+            context.closePath();
+            context.fill();
+
+            // Crown Metallic Specular Sheen
+            context.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+            context.lineWidth = 2;
+            context.beginPath();
+            context.moveTo(w*0.48, -h*0.18);
+            context.lineTo(w*0.36, -0.02);
+            context.stroke();
+            context.restore();
+
+            // 4. 3D Facial Features (Eyes & Mustache Mouth)
+            const darkBrown = '#3D281C';
+            let eyeLeftX = w*0.42;
+            let eyeRightX = w*0.58;
+            let eyeY = h*0.38;
+
+            if (state === 'crying') {
+                // Crying Eyes (> <)
+                context.strokeStyle = darkBrown;
+                context.lineWidth = 3.5;
+                context.lineCap = 'round';
+                context.beginPath(); context.moveTo(w*0.35, h*0.35); context.lineTo(w*0.44, h*0.4); context.lineTo(w*0.35, h*0.45); context.stroke();
+                context.beginPath(); context.moveTo(w*0.65, h*0.35); context.lineTo(w*0.56, h*0.4); context.lineTo(w*0.65, h*0.45); context.stroke();
+                
+                // 3D Glassy Water Teardrops
+                const draw3DTear = (tx, ty, tr) => {
+                    context.save();
+                    let tearGrad = context.createRadialGradient(tx - tr*0.3, ty - tr*0.3, 1, tx, ty, tr);
+                    tearGrad.addColorStop(0, '#FFFFFF');
+                    tearGrad.addColorStop(0.5, '#66B5FF');
+                    tearGrad.addColorStop(1, '#2B7EC5');
+                    context.fillStyle = tearGrad;
+                    context.beginPath(); context.arc(tx, ty, tr, 0, Math.PI*2); context.fill();
+                    context.restore();
+                };
+                draw3DTear(w*0.4, h*0.51, w*0.055);
+                draw3DTear(w*0.6, h*0.51, w*0.055);
+                draw3DTear(w*0.38, h*0.62, w*0.075);
+                draw3DTear(w*0.62, h*0.62, w*0.075);
+            } else if (state === 'happy') {
+                // Happy Eyes (^^)
+                context.strokeStyle = darkBrown;
+                context.lineWidth = 3.5;
+                context.lineCap = 'round';
+                context.beginPath(); context.arc(w*0.42, h*0.4, 4.5, Math.PI, 0); context.stroke();
+                context.beginPath(); context.arc(w*0.58, h*0.4, 4.5, Math.PI, 0); context.stroke();
+            } else {
+                // 3D Shiny Sphere Eyes
+                context.save();
+                context.fillStyle = darkBrown;
+                context.beginPath(); context.arc(eyeLeftX, eyeY, w*0.038, 0, Math.PI*2); context.fill();
+                context.beginPath(); context.arc(eyeRightX, eyeY, w*0.038, 0, Math.PI*2); context.fill();
+                
+                // Eye Specular Highlight
+                context.fillStyle = '#FFFFFF';
+                context.beginPath(); context.arc(eyeLeftX - 1, eyeY - 1, w*0.012, 0, Math.PI*2); context.fill();
+                context.beginPath(); context.arc(eyeRightX - 1, eyeY - 1, w*0.012, 0, Math.PI*2); context.fill();
+                context.restore();
+            }
+
+            // 5. 3D Mustache Mouth (~_~ Embossed Clay Ribbon)
+            context.save();
+            // Drop shadow under mouth to float 3D off face
+            context.shadowColor = 'rgba(50, 25, 10, 0.35)';
+            context.shadowBlur = 3.5;
+            context.shadowOffsetY = 2;
+
+            context.lineWidth = w * 0.055;
+            context.lineCap = 'round';
+            context.lineJoin = 'round';
+            context.strokeStyle = darkBrown;
+            context.beginPath();
+
+            if (state === 'crying') {
+                context.moveTo(w*0.3, h*0.55);
+                context.quadraticCurveTo(w*0.5, h*0.45, w*0.7, h*0.55);
+            } else {
+                // ~_~ Mustache Mouth
+                context.moveTo(w*0.25, h*0.46);
+                context.bezierCurveTo(w*0.35, h*0.55, w*0.45, h*0.52, w*0.5, h*0.44);
+                context.bezierCurveTo(w*0.55, h*0.52, w*0.65, h*0.55, w*0.75, h*0.46);
+            }
+            context.stroke();
+            context.restore();
+
+            // Mouth Top Highlight Line (Creates 3D extruded clay feel)
+            if (state !== 'crying') {
+                context.save();
+                context.lineWidth = w * 0.018;
+                context.lineCap = 'round';
+                context.lineJoin = 'round';
+                context.strokeStyle = '#6E5242';
+                context.beginPath();
+                context.moveTo(w*0.26, h*0.45);
+                context.bezierCurveTo(w*0.35, h*0.53, w*0.45, h*0.50, w*0.5, h*0.43);
+                context.bezierCurveTo(w*0.55, h*0.50, w*0.65, h*0.53, w*0.74, h*0.45);
+                context.stroke();
+                context.restore();
+            }
+
+            // 6. Accessories for Victory Screen (3D Trophy & Medal)
+            if (state === 'happy') {
+                // 3D Trophy
+                context.save();
+                context.shadowColor = 'rgba(0,0,0,0.3)';
+                context.shadowBlur = 6;
+                let trophyGrad = context.createLinearGradient(w*1.0, h*0.1, w*1.2, h*0.3);
+                trophyGrad.addColorStop(0, '#FFF3A8');
+                trophyGrad.addColorStop(0.5, '#FFD700');
+                trophyGrad.addColorStop(1, '#B88600');
+                
+                context.fillStyle = trophyGrad;
+                context.fillRect(w*1.05, h*0.15, 14, 20); 
+                context.beginPath(); context.arc(w*1.12, h*0.15, 12, 0, Math.PI); context.fill(); 
+                context.strokeStyle = '#DAA520'; context.lineWidth = 2.5;
+                context.strokeRect(w*1.01, h*0.18, 22, 12); 
+                context.restore();
+
+                // 3D Ribbon & Medal
+                context.save();
+                context.strokeStyle = '#FF3333';
+                context.lineWidth = 3.5;
+                context.beginPath(); context.moveTo(w*0.35, h*0.55); context.lineTo(w*0.5, h*0.72); context.lineTo(w*0.65, h*0.55); context.stroke();
+                
+                let medalGrad = context.createRadialGradient(w*0.5-2, h*0.72-2, 1, w*0.5, h*0.72, 10);
+                medalGrad.addColorStop(0, '#FFF59D');
+                medalGrad.addColorStop(0.6, '#FFD700');
+                medalGrad.addColorStop(1, '#C59B00');
+                context.fillStyle = medalGrad;
+                context.beginPath(); context.arc(w*0.5, h*0.72, 10, 0, Math.PI*2); context.fill();
+                context.restore();
+            }
+
+            context.restore();
+        }
+
+        // Initialize UI Canvases
+        function initUICanvases() {
+            // Mini Chammyeong on Menu
+            const miniCtx = document.getElementById('miniChammyeong').getContext('2d');
+            miniCtx.clearRect(0,0,100,120);
+            drawChamMyeongBase(miniCtx, 20, 30, 60, 70, 'normal');
+
+            // Crying Chammyeong
+            const cryCtx = document.getElementById('cryingCanvas').getContext('2d');
+            cryCtx.clearRect(0,0,160,180);
+            drawChamMyeongBase(cryCtx, 30, 25, 100, 130, 'crying');
+
+            // Happy Chammyeong
+            const happyCtx = document.getElementById('happyCanvas').getContext('2d');
+            happyCtx.clearRect(0,0,180,200);
+            drawChamMyeongBase(happyCtx, 40, 30, 100, 130, 'happy');
+        }
+
+        // Keyboard controls
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault(); // Prevent scrolling
+                if (gameState === 'PLAYING') {
+                    if (!isSpacePressed && !player.isJumping) {
+                        player.vy = -12; // Initial jump burst
+                        player.isJumping = true;
+                        player.jumpHoldTimer = 0;
+                    }
+                    isSpacePressed = true;
+                } else if (gameState === 'MENU') {
+                    // Start game on space in menu (optional, button is provided)
+                }
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'Space') {
+                isSpacePressed = false;
+            }
+        });
+
+        // Touch controls for the game canvas
+        canvas.addEventListener('touchstart', (e) => {
+            if (gameState === 'PLAYING') {
+                e.preventDefault();
+                if (!isSpacePressed && !player.isJumping) {
+                    player.vy = -12;
+                    player.isJumping = true;
+                    player.jumpHoldTimer = 0;
+                }
+                isSpacePressed = true;
+            }
+        }, {passive: false});
+
+        canvas.addEventListener('touchend', (e) => {
+            if (gameState === 'PLAYING') {
+                e.preventDefault();
+                isSpacePressed = false;
+            }
+        }, {passive: false});
+
+        // Prologue Logic
+        function handleMiniClick() {
+            if (gameState !== 'MENU') return;
+            prologueClicks++;
+            clickCountDisplay.innerText = prologueClicks;
+            
+            // Wiggle animation
+            const mini = document.getElementById('miniChammyeong');
+            mini.style.transform = 'rotate(-10deg)';
+            setTimeout(() => mini.style.transform = 'rotate(10deg)', 50);
+            setTimeout(() => mini.style.transform = 'rotate(0deg)', 100);
+
+            if (prologueClicks >= 3) {
+                prologueClicks = 0;
+                clickCountDisplay.innerText = 0;
+                startPrologue();
+            }
+        }
+
+        function startPrologue() {
+            gameState = 'PROLOGUE';
+            startScreen.classList.add('hidden');
+            prologueScreen.classList.remove('hidden');
+            prologueStep = 0;
+            renderProloguePanel();
+        }
+
+        function nextPrologue() {
+            prologueStep++;
+            if (prologueStep >= prologueData.length) {
+                // End of prologue
+                prologueScreen.classList.add('hidden');
+                startScreen.classList.remove('hidden');
+                gameState = 'MENU';
+            } else {
+                renderProloguePanel();
+                // Re-trigger animation
+                const panel = document.getElementById('comicPanel');
+                panel.style.animation = 'none';
+                panel.offsetHeight; /* trigger reflow */
+                panel.style.animation = null; 
+            }
+        }
+
+        function renderProloguePanel() {
+            document.getElementById('comicText').innerText = prologueData[prologueStep].text;
+            const cCtx = document.getElementById('comicCanvas').getContext('2d');
+            cCtx.clearRect(0, 0, 300, 200);
+            prologueData[prologueStep].draw(cCtx);
+        }
+
+        function drawPrologue1(ctx) {
+            // Background Tent
+            ctx.fillStyle = '#ff6666';
+            ctx.beginPath();
+            ctx.moveTo(150, 20); ctx.lineTo(250, 180); ctx.lineTo(50, 180); ctx.fill();
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.moveTo(150, 20); ctx.lineTo(200, 180); ctx.lineTo(100, 180); ctx.fill();
+            
+            // Chammyeong looking
+            drawChamMyeongBase(ctx, 220, 100, 40, 50, 'normal');
+        }
+
+        function drawPrologue2(ctx) {
+            // Tightrope
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(20, 100); ctx.lineTo(280, 100); ctx.stroke();
+            
+            // Silhouette acrobat jumping
+            ctx.fillStyle = '#666';
+            ctx.beginPath(); ctx.arc(150, 60, 15, 0, Math.PI*2); ctx.fill(); // Head
+            ctx.fillRect(145, 75, 10, 20); // Body
+            
+            // Sparkles
+            ctx.fillStyle = '#FFD700';
+            ctx.fillText("✨", 100, 50);
+            ctx.fillText("✨", 180, 80);
+
+            // Chammyeong watching in awe (bottom left)
+            drawChamMyeongBase(ctx, 40, 140, 30, 40, 'happy');
+        }
+
+        function drawPrologue3(ctx) {
+            // Close up of Chammyeong with a crown shining
+            drawChamMyeongBase(ctx, 100, 40, 100, 120, 'happy');
+            
+            // Big sparkles
+            ctx.font = "30px Arial";
+            ctx.fillText("✨", 50, 50);
+            ctx.fillText("✨", 220, 70);
+            ctx.fillText("🔥", 200, 140);
+        }
+
+        function startGame() {
+            startScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            victoryScreen.classList.add('hidden');
+            hud.classList.remove('hidden');
+            
+            gameState = 'PLAYING';
+            player.score = 0;
+            player.lives = 3;
+            player.x = canvas.width * 0.2;
+            player.y = player.groundY;
+            player.vy = 0;
+            player.isJumping = false;
+            player.invulnerableTime = 0;
+            
+            ropes = [];
+            currentSpeed = BASE_GAME_SPEED;
+            updateHUD();
+            
+            lastTime = performance.now();
+            if (animationId) cancelAnimationFrame(animationId);
+            gameLoop(lastTime);
+        }
+
+        function resetToMenu() {
+            gameOverScreen.classList.add('hidden');
+            victoryScreen.classList.add('hidden');
+            hud.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+            gameState = 'MENU';
+        }
+
+        function updateHUD() {
+            scoreDisplay.innerText = player.score;
+            let heartStr = '';
+            for(let i=0; i<player.lives; i++) heartStr += '❤️';
+            lifeDisplay.innerText = heartStr;
+        }
+
+        function spawnRope(time) {
+            // Different heights: Low, Mid, High
+            const heightTypes = [
+                player.groundY - 30, // Low (needs small jump)
+                player.groundY - 80, // Mid (needs normal jump)
+                player.groundY - 140 // High (needs high jump or ducking, but only jump in this game, so just visual variety or hard to reach)
+            ];
+            
+            // Randomly pick a height. Heavily weight low/mid to ensure playability.
+            const rnd = Math.random();
+            let yPos = heightTypes[0];
+            if (rnd > 0.5 && rnd < 0.8) yPos = heightTypes[1];
+            else if (rnd >= 0.8) yPos = heightTypes[2];
+
+            // Colors
+            const colors = ['#FF9AA2', '#FFB7B2', '#FFDAC1', '#E2F0CB', '#B5EAD7', '#C7CEEA'];
+            
+            ropes.push({
+                x: canvas.width,
+                baseY: yPos,
+                y: yPos,
+                width: 15 + Math.random() * 20, // Thickness
+                length: 60 + Math.random() * 100, // Visual length (rendered as dots/dashed line or rectangle)
+                color: colors[Math.floor(Math.random() * colors.length)],
+                passed: false,
+                oscillationSpeed: 0.002 + Math.random() * 0.003,
+                oscillationAmp: 10 + Math.random() * 20,
+                timeOffset: Math.random() * 1000
+            });
+        }
+
+        function update(deltaTime, time) {
+            if (gameState !== 'PLAYING') return;
+
+            // Player Physics (Jump)
+            if (player.isJumping) {
+                // If holding space, continue applying upward force briefly
+                if (isSpacePressed && player.jumpHoldTimer < MAX_JUMP_HOLD) {
+                    player.vy -= 1.0; // Boost
+                    player.jumpHoldTimer++;
+                }
+            }
+
+            // Apply gravity
+            player.vy += GRAVITY;
+            player.y += player.vy;
+
+            // Ground Collision
+            if (player.y >= player.groundY) {
+                player.y = player.groundY;
+                player.vy = 0;
+                player.isJumping = false;
+                player.jumpHoldTimer = 0;
+            }
+
+            // Invulnerability timer
+            if (player.invulnerableTime > 0) {
+                player.invulnerableTime -= deltaTime;
+            }
+
+            // Spawn Ropes
+            ropeSpawnTimer += deltaTime;
+            // Spawn interval decreases as score goes up (gets faster)
+            let spawnInterval = Math.max(800, 2000 - (player.score * 0.2)); 
+            
+            if (ropeSpawnTimer > spawnInterval) {
+                spawnRope(time);
+                ropeSpawnTimer = 0;
+            }
+
+            // Update Ropes & Collision
+            for (let i = ropes.length - 1; i >= 0; i--) {
+                let r = ropes[i];
+                r.x -= currentSpeed;
+                
+                // Slight movement (sine wave)
+                r.y = r.baseY + Math.sin(time * r.oscillationSpeed + r.timeOffset) * r.oscillationAmp;
+
+                // Collision Box for Rope
+                const rBox = {
+                    x: r.x,
+                    y: r.y - r.width/2,
+                    w: r.length,
+                    h: r.width
+                };
+
+                let landedOnRope = false;
+
+                // 1. 착지 판정: 플레이어가 떨어지는 중(vy >= 0)이고 줄의 윗부분을 밟았을 때
+                if (player.vy >= 0 && 
+                    player.x + player.width - 15 > rBox.x && 
+                    player.x + 15 < rBox.x + rBox.w) {
+                    
+                    let prevBottom = (player.y - player.vy) + player.height;
+                    // 이전 프레임에서 줄의 위쪽에 있었고, 현재 발끝이 줄 표면 부근에 도달했다면 착지!
+                    if (prevBottom <= rBox.y + 15 && player.y + player.height >= rBox.y - 5) {
+                        player.y = rBox.y - player.height;
+                        player.vy = 0; // 떨어지는 속도 초기화
+                        player.isJumping = false; // 줄 위에서 다시 점프 가능하도록 상태 변경
+                        player.jumpHoldTimer = 0;
+                        landedOnRope = true;
+                    }
+                }
+
+                // 2. 충돌(피격) 판정: 착지한 상태가 아니고 줄에 몸체가 닿았을 때
+                if (!landedOnRope && player.invulnerableTime <= 0) {
+                    // 피격 판정 박스 (착지할 때 닿는 발끝 부분은 제외하여 억울한 피격 방지)
+                    const pBox = {
+                        x: player.x + 15,
+                        y: player.y + 15,
+                        w: player.width - 30,
+                        h: player.height - 35 
+                    };
+
+                    if (pBox.x < rBox.x + rBox.w &&
+                        pBox.x + pBox.w > rBox.x &&
+                        pBox.y < rBox.y + rBox.h &&
+                        pBox.y + pBox.h > rBox.y) {
+                        
+                        // Hit!
+                        player.lives--;
+                        player.invulnerableTime = 1500; // 1.5s i-frames
+                        updateHUD();
+                        
+                        // Flash effect
+                        canvas.style.opacity = 0.5;
+                        setTimeout(() => canvas.style.opacity = 1, 100);
+
+                        if (player.lives <= 0) {
+                            endGame(false);
+                            return;
+                        }
+                    }
+                }
+
+                // Check passing for score
+                if (!r.passed && r.x + r.length < player.x) {
+                    r.passed = true;
+                    // Increase score! We need to reach 6000. 
+                    // To make it achievable in a demo, let's increment by 1.
+                    player.score += 1;
+                    updateHUD();
+                    
+                    // Increase speed slightly
+                    currentSpeed = BASE_GAME_SPEED + (player.score * 0.001);
+
+                    if (player.score >= TARGET_SCORE) {
+                        endGame(true);
+                        return;
+                    }
+                }
+
+                // Remove off-screen ropes
+                if (r.x + r.length < -100) {
+                    ropes.splice(i, 1);
+                }
+            }
+        }
+
+        function endGame(isWin) {
+            gameState = isWin ? 'VICTORY' : 'GAMEOVER';
+            hud.classList.add('hidden');
+            if (isWin) {
+                victoryScreen.classList.remove('hidden');
+            } else {
+                document.getElementById('finalScore').innerText = player.score;
+                gameOverScreen.classList.remove('hidden');
+            }
+        }
+
+        function draw(time) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (gameState === 'MENU' || gameState === 'PROLOGUE') return; // Handled by DOM and static canvases
+
+            // Draw Background Elements (Clouds, Ground)
+            drawEnvironment(time);
+
+            // Draw Ropes with 3D Cable Lighting & Shadow
+            ropes.forEach(r => {
+                ctx.save();
+                ctx.translate(r.x, r.y);
+                
+                // 1. Drop shadow under rope
+                ctx.save();
+                ctx.fillStyle = 'rgba(0,0,0,0.12)';
+                ctx.beginPath();
+                ctx.roundRect(0, r.width/2 + 2, r.length, r.width * 0.4, r.width/2);
+                ctx.fill();
+                ctx.restore();
+
+                // 2. 3D Cylindrical Cable Gradient
+                let ropeGrad = ctx.createLinearGradient(0, -r.width/2, 0, r.width/2);
+                ropeGrad.addColorStop(0, '#FFFFFF');              // Specular top light
+                ropeGrad.addColorStop(0.25, r.color);              // Main body color
+                ropeGrad.addColorStop(0.75, r.color);              // Main body color
+                ropeGrad.addColorStop(1, 'rgba(0,0,0,0.35)');     // 3D bottom shadow
+
+                ctx.fillStyle = ropeGrad;
+                ctx.beginPath();
+                ctx.roundRect(0, -r.width/2, r.length, r.width, r.width/2);
+                ctx.fill();
+
+                // 3. Braided 3D Cable Detail
+                ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+                ctx.lineWidth = r.width * 0.25;
+                ctx.lineCap = 'round';
+                ctx.setLineDash([12, 10]);
+                ctx.beginPath(); 
+                ctx.moveTo(r.width/2, -r.width*0.1); 
+                ctx.lineTo(r.length - r.width/2, -r.width*0.1); 
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+                ctx.restore();
+            });
+
+            // Dynamic 3D Ground/Platform Shadow for Chammyeong-i
+            ctx.save();
+            let shadowY = player.groundY + player.height - 5;
+            let heightFromGround = shadowY - (player.y + player.height);
+            let shadowScale = Math.max(0.3, 1 - heightFromGround / 300);
+            let shadowAlpha = Math.max(0.05, 0.35 - heightFromGround / 600);
+
+            ctx.fillStyle = `rgba(0, 0, 0, ${shadowAlpha})`;
+            ctx.beginPath();
+            ctx.ellipse(
+                player.x + player.width / 2, 
+                shadowY, 
+                (player.width / 2 + 10) * shadowScale, 
+                8 * shadowScale, 
+                0, 0, Math.PI * 2
+            );
+            ctx.fill();
+            ctx.restore();
+
+            // Draw Player (3D Chammyeong)
+            // Blink if invulnerable
+            if (player.invulnerableTime <= 0 || Math.floor(time / 100) % 2 === 0) {
+                drawChamMyeongBase(ctx, player.x, player.y, player.width, player.height, 'normal');
+            }
+        }
+
+        function drawEnvironment(time) {
+            // Ground
+            ctx.fillStyle = '#a8e6cf'; // Pastel green grass area
+            ctx.fillRect(0, player.groundY + player.height, canvas.width, canvas.height - (player.groundY + player.height));
+            
+            // Ground decorative line
+            ctx.strokeStyle = '#dcedc1';
+            ctx.lineWidth = 10;
+            ctx.beginPath();
+            ctx.moveTo(0, player.groundY + player.height + 5);
+            ctx.lineTo(canvas.width, player.groundY + player.height + 5);
+            ctx.stroke();
+
+            // Simple clouds moving in background
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            for(let i=0; i<3; i++) {
+                let cloudX = ((time * 0.05) + i * 400) % (canvas.width + 200) - 100;
+                // Reverse direction for clouds so they float right to left
+                cloudX = canvas.width - cloudX;
+                let cloudY = 50 + (i * 40);
+                
+                ctx.beginPath();
+                ctx.arc(cloudX, cloudY, 30, 0, Math.PI*2);
+                ctx.arc(cloudX + 30, cloudY - 10, 40, 0, Math.PI*2);
+                ctx.arc(cloudX + 60, cloudY, 30, 0, Math.PI*2);
+                ctx.fill();
+            }
+        }
+
+        function gameLoop(timestamp) {
+            const deltaTime = timestamp - lastTime;
+            lastTime = timestamp;
+
+            update(deltaTime, timestamp);
+            draw(timestamp);
+
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        // Initialize setup
+        window.onload = () => {
+            resize();
+            initUICanvases();
+            setTheme('A'); // Set default theme
+        };
+
+    </script>
+</body>
+</html>

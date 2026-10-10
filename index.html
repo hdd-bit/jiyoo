@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>우리 반 게임방</title>
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#fff8ef; --card:#ffffff; --ink:#4a3426; --accent:#ff8a3d; --muted:#9a8576; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:'Jua',sans-serif; background:var(--bg); color:var(--ink); }
+  header { text-align:center; padding:40px 16px 24px; }
+  h1 { font-size:40px; margin:0 0 8px; }
+  header p { margin:0; color:var(--muted); font-size:18px; }
+  main { max-width:960px; margin:0 auto; padding:0 16px 48px;
+         display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px; }
+  a.card { display:block; text-decoration:none; color:inherit; background:var(--card);
+           border-radius:20px; padding:24px 20px; box-shadow:0 4px 14px rgba(0,0,0,.07);
+           border:3px solid transparent; transition:transform .15s, border-color .15s; }
+  a.card:hover { transform:translateY(-4px); border-color:var(--accent); }
+  .emoji { font-size:48px; }
+  .name { font-size:24px; margin:10px 0 4px; }
+  .maker { color:var(--muted); font-size:15px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🎮 우리 반 게임방</h1>
+  <p>우리가 직접 만든 게임들이에요. 눌러서 놀아 보세요!</p>
+</header>
+<main>
+  <!-- 새 게임을 추가할 때는 아래 카드 하나를 복사해서 주소(href), 이모지, 이름만 바꾸면 돼요 -->
+  <a class="card" href="games/chammyeong/">
+    <div class="emoji">🎪</div>
+    <div class="name">줄 곡예사 챔피언 챔명이</div>
+    <div class="maker">스페이스바·터치로 점프!</div>
+  </a>
+</main>
+</body>
+</html>
